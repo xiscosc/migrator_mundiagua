@@ -3,7 +3,7 @@ import mysql.connector
 
 
 def make_connection_mysql():
-    cnx = mysql.connector.connect(user='root', database='db', password="123456")
+    cnx = mysql.connector.connect(user='root', password="123456", database='db')
     cursor = cnx.cursor()
     return cnx, cursor
 

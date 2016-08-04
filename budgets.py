@@ -7,16 +7,19 @@ def migrate_budgets():
     cnx_m, cursor_m = make_connection_mysql()
     cnx_p, cursor_p = make_connection_postgres()
 
-    query = "SELECT p_id, p_d_id, p_u_id, p_fecha, p_intro, p_condiciones, p_impuesto, p_nulo from presupuesto"
+    query = "SELECT p_id, p_d_id, p_u_id, p_fecha, p_intro, p_condiciones, p_impuesto, p_nulo from presupuesto ORDER by p_id asc"
 
     cursor_m.execute(query)
-
+    last_id = 0
     for (p_id, p_d_id, p_u_id, p_fecha, p_intro, p_condiciones, p_impuesto, p_nulo) in cursor_m:
         nulo = bool(int(p_nulo))
         cursor_p.execute(
             'INSERT INTO budget_budgetstandard (id, address_id, created_by_id, date, introduction, conditions, tax, invalid) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
             (p_id, p_d_id, p_u_id, p_fecha, p_intro, p_condiciones, p_impuesto, nulo))
-
+        last_id = p_id
+    last_id += 1
+    cursor_p.execute('ALTER SEQUENCE budget_budgetstandard_id_seq RESTART WITH ' + str(last_id))
+    print("\tUPDATED LAST ID BUDGET " + str(last_id))
     close_connection_mysql(cnx_m, cursor_m)
     close_connection_postgres(cnx_p, cursor_p)
     print("ADDING BUDGET LINES...")
